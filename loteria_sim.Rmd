@@ -1,0 +1,394 @@
+---
+title: "Running Simulations of LA LOTERIA"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(scales)
+library(ggimage)
+library(rsvg)
+
+
+theme_set(theme_minimal())
+```
+
+
+
+```{r}
+imgs <- data.frame(urls = c('cards/bandera.jpeg',
+          'cards/chalupa.jpeg',
+          'cards/corazon.jpeg',
+          'cards/estrella.jpeg',
+          'cards/gallo.jpeg',
+          'cards/garza.jpeg',
+          'cards/maceta.jpeg',
+          'cards/palma.jpeg',
+          'cards/sol.jpeg',
+          'cards/valiente.jpeg',
+          'cards/jaras.jpeg',
+          'cards/borracho.jpeg',
+          'cards/sirena.jpeg',
+          'cards/arbol.jpeg',
+          'cards/camaron.jpeg',
+          'cards/arpa.jpeg',
+          'cards/diablito.jpeg',
+          'cards/campana.jpeg',
+          'cards/bota.jpeg',
+          'cards/mano.jpeg',
+          'cards/calavera.jpeg',
+          'cards/rosa.jpeg') , 
+          names = c('bandera','chalupa','corazon','estrella','gallo','garza','maceta','palma',
+                    'sol','valiente','jaras','borracho','sirena','arbol','camaron','arpa',
+                    'diablito','campana','bota','mano','calavera','rosa'))
+```
+
+
+## Create a deck of loteria cards
+
+```{r}
+
+nombres <- c( 'El gallo' ,  'El diablito' , 'La dama' , 'El catrin' , 'El paraguas' ,
+   'La sirena' ,  'La escalera' , 'La botella' , 'El barril' , 'El arbol' ,
+   'El melon' ,  'El valiente' , 'El gorrito' , 'La muerte' , 'La pera' ,
+   'La bandera' ,  'El bandolon' , 'El violoncello' , 'La garza' , 'El parajo' ,
+   'La mano' ,  'La bota' , 'El luna' , 'El cotorro' , 'El borracho' ,
+   'El negrito' ,  'El corazon' , 'La sandia' , 'El tambor' , 'El camaron' ,
+   'Las jaras' ,  'El musico' , 'La arana' , 'El soldado' , 'La estrella' ,
+   'El cazo' ,  'El mundo' , 'El apache' , 'El nopal' , 'El alacran' ,
+   'La rosa' ,  'La calavera' , 'La campana' , 'El cantarito' , 'El venado' ,
+   'El sol' ,  'La corona' , 'La chalupa' , 'El pino' , 'El pescado' ,
+   'La palma' ,  'La maceta' , 'El arpa' , 'La rana' )
+
+
+deck <- data.frame(id = seq(1,54) , names = nombres)
+
+
+deck
+```
+
+
+## Create 10 tablets based on the popular game
+
+```{r}
+
+
+tabla1 <- data.frame(pos = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) , 
+                     card = c(1,2,3,4, 10,11,12,13, 19,20,21,22, 29,29,30,31) ) |> 
+  mutate(tabla = 1)
+
+tabla2 <- data.frame(pos = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) ,
+                     card = c(6,7,8,9, 15,16,17,18, 24,25,26,27, 33,34,35,36) ) |> 
+  mutate(tabla = 2)
+
+tabla3 <- data.frame(pos = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) , 
+                     card = c(2,3,4,5, 7,8,9,10, 12,13,14,15, 17,18,19,20) ) |> 
+  mutate(tabla = 3)
+
+tabla4 <- data.frame(pos = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) , 
+                     card = c(43,44,45,21, 52,53,54,26, 7,8,9,31, 16,17,18,36) ) |> 
+  mutate(tabla = 4)
+
+tabla5 <- data.frame(pos = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16) , 
+                     card = c(22,23,24,25, 27,28,29,30, 32,33,34,35, 37,38,39,40) ) |> 
+  mutate(tabla = 5)
+
+tabla6 <- data.frame(pos = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16), 
+                     card = c(21,22,23,24, 30,31,32,33, 38,39,40,42, 48,49,50,51) ) |> 
+  mutate(tabla = 6)
+
+tabla7 <- data.frame(pos = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16), 
+                     card = c(25,26,27,41, 34,35,36,46, 43,44,45,51, 53,53,54,32) ) |> 
+  mutate(tabla = 7)
+
+tabla8 <- data.frame(pos = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),
+                     card = c(42,43,44,45, 47,48,49,50, 52,53,54,1, 40,10,19,30) ) |> 
+  mutate(tabla = 8)
+
+tabla9 <- data.frame(pos = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),
+                     card = c(41,42,37,38, 50,51,46,47, 5,6,1,2, 14,15,10,11) ) |> 
+  mutate(tabla = 9)
+
+tabla10 <- data.frame(pos = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),
+                      card = c(10,23,4,5, 27,28,9,30, 32,13,34,35, 37,18,39,22) ) |> 
+  mutate(tabla = 10)
+
+
+tablas <- rbind(tabla1 , tabla2 , tabla3 , tabla4 , tabla5 , tabla6 , tabla7 , tabla8 , tabla9 , tabla10) |>
+  mutate(tabla_lbl = paste0('Tabla-' , tabla)) |>
+  left_join(deck , by=c('card' = 'id'))
+
+
+
+```
+
+## How many tablets does each card show up in?
+
+```{r}
+cartas_cnt <- tablas |> 
+  group_by(card ) |> 
+  count() 
+
+
+cartas_grp_cnt <- cartas_cnt |> group_by(n) |> count()
+colnames(cartas_grp_cnt) <- c('n' , 'rank')
+
+```
+
+
+
+```{r}
+  
+cartas_tbl <- cartas_cnt |>
+  left_join(deck , by=c('card' = 'id')) |>
+  group_by(n) |>
+  mutate(rank = rank(card)) |>
+  ggplot(aes(x=n, y=rank, label=names)) + 
+  geom_bar(data=cartas_grp_cnt, aes(x=n, y=rank+1, fill=as.factor(n)) , stat='identity' , inherit.aes = FALSE) +
+  geom_text(data=cartas_grp_cnt, aes(x=n,y=rank+2, label=rank) , size=4, stat='identity' , inherit.aes = FALSE) +
+  geom_text(hjust=0.5, size=2) +
+  geom_image(data=imgs |> filter(names=='camaron'), aes(x=5,y=25,image=urls), size=0.05 , asp=4) +
+  geom_image(data=imgs |> filter(names=='arbol'), aes(x=5,y=10,image=urls), size=0.05 , asp=4) +
+  geom_image(data=imgs |> filter(names=='chalupa'), aes(x=2,y=25,image=urls), size=0.05 , asp=4) +
+  geom_image(data=imgs |> filter(names=='corazon'), aes(x=4,y=25,image=urls), size=0.05 , asp=4) +
+  labs(x='',y='', title='Number of Loteria tablets each card appears in' , 
+       subtitle='14 cards appear in only 2 tablets and [El camaron] [El arbol] both appear in 5 tablets' ,
+       caption = 'Data Viz by Nat Rivera') +
+  theme(legend.position = 'no' , 
+        panel.grid = element_blank() ,
+        axis.text.y = element_blank() ,
+        plot.title = element_text(face='bold' , size=20))
+
+cartas_tbl
+
+```
+
+## Visualize the cards in each tablet.
+
+```{r , fig.height=8}
+tablas_tbl <- tablas |> 
+  ggplot(aes(x=fct_reorder( tabla_lbl , (tabla)) , y=fct_reorder(names , desc(card)) , color=tabla_lbl)) + 
+  geom_point(size=3) +
+  labs(x='' , y='', title='La Loteria Tablets' , subtitle='Each dot represents the card in a tablet' , 
+       caption='Data Viz by Nat Rivera') +
+  theme(legend.position = 'none' ,
+        plot.title = element_text(face='bold' , size=20)) 
+
+tablas_tbl
+```
+
+## Now, let's look at how unique each of the tablets is.
+
+## Unique score will be calculated by adding the number of tablets each card appears in.
+
+## A lower score means more unique.
+
+```{r}
+
+bar_tbl <- tablas |>
+  left_join(cartas_cnt , by=c('card' = 'card')) |>
+  group_by(tabla) |>
+  summarise(score = sum(n)) |>
+  mutate(tabla_lbl = paste0('tabla-' , tabla)) |>
+  ggplot(aes(x= fct_reorder(tabla_lbl , tabla) , y=score , fill=score , label=score)) +
+  geom_bar(stat='identity') + 
+  geom_text(nudge_y = 3) +
+  labs(x='', y='',  title="La Loteria Tablet's Uniqueness" , 
+       subtitle = 'Lower score = higher Uniqueness') +
+  theme(legend.position = 'none' , 
+        plot.title = element_text(face='bold' , size=20))
+
+bar_tbl
+  
+```
+### Tablet 9 is the most unique and tablet 10 is the least.
+
+
+
+# Create a function that shuffles a deck
+
+```{r}
+shuffle <- function(input_deck) {
+  
+  output_deck <- input_deck
+  rows <- sample(nrow(input_deck))
+  output_deck <- output_deck[rows, ]
+  
+  return(output_deck)
+}
+
+
+shuffle(deck)
+```
+
+
+## Create a function that runs through simulated **La Loteria** Rounds
+
+```{r}
+
+tempie <- tablas |> mutate(iteration = 1 , match = 0 , card_iter = 0 , winner=0)
+
+run_sim <- function(iter) {
+  
+  i <- 1
+  output_df <- data.frame()
+  
+  while(i <= iter) {
+    
+    # create a temp dataframe and suffle a deck
+    temp_df <- tablas |> mutate(iteration = i , match = 0 , card_iter = 0 , winner=0)
+    temp_deck <- shuffle(deck)
+    
+    # iterate through each card in the deck
+    j <- 1
+    while(j <= 54 ) {
+      
+      for (k in 1:nrow(temp_df)) {
+        
+        temp_df[k , 8] <- j # set card iteraton
+        
+        if (temp_df[k,2] == temp_deck[j , 1]) {
+          temp_df[k , 7] <- 1 # set a match
+         }
+      } # end of for loop
+      
+      #check for a winner 
+      temp_grp <- temp_df |> group_by(tabla) |> summarise(winning = sum(match)) |> filter(winning > 15)
+      
+      if (nrow(temp_grp) > 0 ) {
+        j <- 100
+        
+        for (x in 1:nrow(temp_grp)) {
+          for (y in 1:nrow(temp_df)) {
+            if (temp_df[y,3] == temp_grp[x,1]) {
+              temp_df[y,9] <- 1
+            }
+          }
+        }
+        
+      }
+      
+      j <- j+1
+    } # end of each card in deck while there is not a winner
+    
+    if (i == 1) {
+      output_df <- temp_df
+    } else {
+      output_df <- rbind(output_df , temp_df)
+    }
+    i <- i+1
+    
+  } # end of BIG while of all iterations
+  
+  return(output_df)
+  
+}
+
+
+```
+
+
+## Run the simulations
+
+```{r}
+#sim_data <- run_sim(10000)
+```
+
+
+
+```{r}
+sim_data |> 
+  group_by(iteration) |> 
+  summarise(cards_iter = min(card_iter)) |> 
+  group_by(cards_iter) |>
+  count() |>
+  ggplot(aes(x=cards_iter , y=n , label=n) ) +
+  geom_bar( stat='identity', fill='dodgerblue') +
+  geom_text(nudge_y = 50 , size=2.5) +
+  geom_image(data=imgs |> filter(names=='bandera'), 
+             aes(x=25,y=1500,image=urls), size=0.040, asp=4, inherit.aes = FALSE) +
+  geom_image(data=imgs |> filter(names=='gallo'), 
+             aes(x=30,y=1500,image=urls), size=0.040, asp=4, inherit.aes = FALSE) +
+  geom_image(data=imgs |> filter(names=='valiente'), 
+             aes(x=35,y=1500,image=urls), size=0.040, asp=4, inherit.aes = FALSE) +
+  geom_image(data=imgs |> filter(names=='jaras'), 
+             aes(x=40,y=1000,image=urls), size=0.040, asp=4, inherit.aes = FALSE) +
+  geom_image(data=imgs |> filter(names=='maceta'), 
+             aes(x=25,y=1000,image=urls), size=0.040, asp=4, inherit.aes = FALSE) +
+  geom_image(data=imgs |> filter(names=='palma'), 
+             aes(x=30,y=1000,image=urls), size=0.040, asp=4, inherit.aes = FALSE) +
+  geom_image(data=imgs |> filter(names=='sol'), 
+             aes(x=35,y=1000,image=urls), size=0.040, asp=4, inherit.aes = FALSE) +
+  geom_image(data=imgs |> filter(names=='arpa'), 
+             aes(x=40,y=1500,image=urls), size=0.040, asp=4, inherit.aes = FALSE) +
+  geom_image(data=imgs |> filter(names=='garza'), 
+             aes(x=25,y=500,image=urls), size=0.040, asp=4, inherit.aes = FALSE) +
+  geom_image(data=imgs |> filter(names=='estrella'), 
+             aes(x=30,y=500,image=urls), size=0.040, asp=4, inherit.aes = FALSE) +
+  geom_image(data=imgs |> filter(names=='sirena'), 
+             aes(x=35,y=500,image=urls), size=0.040, asp=4, inherit.aes = FALSE) +
+  labs(x='Card at Which the Round is Won',y='',title='10,000 Simulated Rounds of La Loteria' , 
+       subtitle='How many cards have to be pulled to win a round? \n 1 Round was won after 24 cards being pulled and 28 cards was the most common.' , 
+       caption='Simulation and Viz by Nat Rivera') +
+  scale_x_continuous(breaks = c(25,30,35,40,45,50)) +
+  theme(plot.title = element_text(face='bold' , size=20))
+```
+
+
+## Show the number of wins per tablet. 
+
+```{r}
+sim_wins <- sim_data |> group_by(tabla_lbl) |> summarise(wins = sum(winner) / 16) |> arrange(desc(wins))
+sim_wins
+```
+
+
+
+
+
+## Show the average number of matches per round per tablet. 
+### A match is when a pulled card is on your tablet.
+
+
+```{r}
+sim_avg_score <- sim_data |> 
+  group_by(iteration , tabla_lbl) |> 
+  summarise(score = sum(match)) |> 
+  group_by(tabla_lbl) |>
+  summarise(avg_score = mean(score)) |>
+  arrange(desc(avg_score))
+
+sim_avg_score
+```
+
+
+```{r}
+first_pos <- tablas |> 
+  filter(pos==1) |>
+  mutate(names = str_sub(names, 4)) |>
+  left_join(imgs) |>
+  mutate(nudge = 0.016 , 
+         nudge = ifelse(tabla == 4 , -0.015 , nudge) , 
+         nudge = ifelse(tabla == 3 , 0.02 , nudge)  )
+```
+
+
+
+```{r}
+sim_combined <- sim_avg_score |> 
+  left_join(sim_wins , by = join_by(tabla_lbl)) |>
+  left_join(first_pos, by = join_by(tabla_lbl))
+
+sim_combined |> 
+  ggplot(aes(x=wins, y=avg_score, label=tabla_lbl)) + 
+  geom_image(aes(image=urls), size=0.030, asp=4) +
+  geom_text(aes(y=avg_score+nudge) , size=3) +
+  labs(x='Total Wins' , y='Average Score at end of Each Round', title='La Loteria Simulation Results' , 
+       subtitle = 'After 10,000 simulated rounds, tablet 7 has the best combination of wins and average matches.') +
+  scale_x_continuous(breaks = c(1050,1100,1150,1200,1250,1300,1350,1400)) +
+  scale_y_continuous(limits = c(13.79,13.92)) +
+  theme(legend.position = 'none' , 
+        panel.grid.minor  = element_blank(),
+        plot.title = element_text(face='bold' , size=20))
+
+```
